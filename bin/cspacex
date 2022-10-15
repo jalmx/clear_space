@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+from pathlib import Path
+import os
+DEBUG=True
+def read_files_from_folder(path,is_recursive=False):
+	'\n    This function read all files and folders\n    :param path: Path from folder to search\n    :param is_recursive: Going to search all files in from recursive\n    :return: a dict with 2 list with a files and folders\n    ';B=[];C=[]
+	for A in path.iterdir():
+		if A.is_file():B.append(A)
+		if A.is_dir():C.append(A)
+	if DEBUG:print(f'Folders: {len(C)} & Files: {len(B)} in "{path}"')
+	return{'files':B,'directories':C}
+def change_name(path,old_sep=' ',sep='_',is_change_name=True):
+	if not is_change_name:return
+	A=os.path.abspath(path);B=A.split(os.path.sep)[-1];D=B.strip().replace(old_sep,sep);C=A.replace(B,D);os.rename(A,C)
+	if DEBUG:print(A,C)
+def clear_space(path,is_change_file=True,is_change_folder=False):change_name(path)
+def main():A=Path(f"./assets/folder dos ");clear_space(A)
+if __name__=='__main__':main()
