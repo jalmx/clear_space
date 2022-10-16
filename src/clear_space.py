@@ -6,9 +6,6 @@ import os
 DEBUG = True
 
 
-# FIX: to search recursive
-
-
 def read_files_from_folder(path: Path, is_recursive=False) -> dir:
     """
     This function read all files and folders
@@ -60,7 +57,7 @@ def change_name(path: Path, old_sep=" ", new_sep="_") -> bool:
     if name.find(old_sep) == -1:
         return False
 
-    new_full_path= ""
+    new_full_path = ""
     new_name = name.strip().replace(old_sep, new_sep)
 
     if full_path.count(name) > 1:  # if father folder have the same name as child
@@ -71,7 +68,7 @@ def change_name(path: Path, old_sep=" ", new_sep="_") -> bool:
         new_full_path = full_path.replace(name, new_name)
 
     os.rename(full_path, new_full_path)
-    print(full_path, "++>", new_full_path)
+    print(full_path, "-->", new_full_path)
     if DEBUG:
         # Message for Logs
         pass
@@ -117,8 +114,8 @@ def main():
     """
     # path = Path("./assets")
     # path = Path(f"./assets/folder uno{os.path.sep}main uno.py")
-    path = Path(f"/home/xizuth/Projects/clear_space/test")
-    clear_space(path, is_change_file=True, is_change_folder=True, is_recursive=True)
+    path = Path(f"/home/xizuth/Downloads")
+    clear_space(path, old_sep="-", new_sep="_", is_change_file=True, is_change_folder=False, is_recursive=False)
 
 
 if __name__ == "__main__":
