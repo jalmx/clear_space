@@ -3,7 +3,7 @@
 from pathlib import Path
 import os
 
-DEBUG = True
+DEBUG = None
 
 
 def read_files_from_folder(path: Path, is_recursive=False) -> dir:
@@ -68,10 +68,10 @@ def change_name(path: Path, old_sep=" ", new_sep="_") -> bool:
         new_full_path = full_path.replace(name, new_name)
 
     os.rename(full_path, new_full_path)
-    print(full_path, "-->", new_full_path)
+
     if DEBUG:
-        # Message for Logs
-        pass
+        print(full_path, "-->", new_full_path)
+
     return True
 
 
@@ -83,17 +83,26 @@ def change_name_all_files(files_path: [], old_sep=" ", new_sep="_"):
         if is_change:
             count += 1
 
-    print(f"Changed {count}")
-
     if DEBUG:
-        # Add message for log
-        pass
+        print(f"Changed {count}")
 
 
-def clear_space(path: Path, old_sep=" ", new_sep="_", is_change_file=True, is_change_folder=False, is_recursive=False):
-    # Principal function from the module
+def clear_space(path: Path, old_sep=" ", new_sep="_", is_change_file=True, is_change_folder=False, is_recursive=False, debug=True):
+    """
+    Principal function from this module
+    :param path: Path folder or file
+    :param old_sep: Old separator
+    :param new_sep: New separator to change
+    :param is_change_file: if apply changes to file
+    :param is_change_folder: if apply change to folder
+    :param is_recursive: is going to search all files and folder inside another
+    :param debug: mode verbose
+    :return: None
+    """
+
+    DEBUG = debug
     files, directories = (None, None)
-    item = Path(path)
+    item = Path(os.path.abspath(path))
 
     if item.is_dir():
         files, directories = read_files_from_folder(path=path, is_recursive=is_recursive)["all"]
@@ -110,12 +119,12 @@ def clear_space(path: Path, old_sep=" ", new_sep="_", is_change_file=True, is_ch
 def main():
     """
     Just for the module
-    :return:
+    :return: None
     """
-    # path = Path("./assets")
+    #path = Path("./assets")
     # path = Path(f"./assets/folder uno{os.path.sep}main uno.py")
-    path = Path(f"/home/xizuth/Downloads")
-    clear_space(path, old_sep="-", new_sep="_", is_change_file=True, is_change_folder=False, is_recursive=False)
+    path = Path(f"./")
+    clear_space(path, old_sep="-", new_sep="_", is_change_file=True, is_change_folder=False, is_recursive=False, debug=True)
 
 
 if __name__ == "__main__":
