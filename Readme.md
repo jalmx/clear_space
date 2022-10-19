@@ -9,25 +9,34 @@ Script for change name for files in folder. All files change just the space in t
 ```commandline
 help
 
--r mode recursive
--d apply to directories
--f apply to files
--v verbose
+usage: cspacex [-h] [--no-file] [-d] [-v] [-r] [--old-sep OLD_SEP] [--new-sep NEW_SEP] [--version] file or path
 
---old-sep - [default: space]
---new-sep _ [default: underscore]
+Tool for change a symbol from name files or folders
+
+positional arguments:
+  file or path       File or path to change name
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --no-file          No include files
+  -d, --directory    Indicate if include directories change name
+  -v, --verbose      Show all logs
+  -r, --recursive    Search recursive inside folders
+  --old-sep OLD_SEP  Old separator. Default space
+  --new-sep NEW_SEP  New separator. Default underscore
+  --version          show program's version number and exit
 
 Examples to use:
 
-cspace file name
-cspacex ./ -f -r -> apply all files and search in folders
-scapcex ./ -f [default apply all files in the folder]
-cspacex ./ -f -d -r [change all files and folders recursive]
-cspacex ./ -d -r [change the name all from directories recursive]
-
-cspacex "file-one" --old-sep - --new_sep _ [gonna change all (-) for (_)]
+cspace "file name"
+cspacex -r ./ -> apply all files and search in folders
+scapcex ./ [default apply all files in this folder]
+cspacex -d -r ./ -> change all files and folders recursive
+cspacex -d -r --no-file ./ ->change just name folders recursive
+cspacex --no-file -d ./ -> change name just folders, no files
+ 
+cspacex "file-one" --old-sep - --new_sep * [gonna change all (-) for (_)]
     result: file_one
-
 ```
 
 ## How to install
