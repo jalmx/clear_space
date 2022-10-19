@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-from pathlib import Path
+import argparse
 import os
+from pathlib import Path
 
-DEBUG = None
+DEBUG = False
 
 
 def read_files_from_folder(path: Path, is_recursive=False) -> dir:
@@ -87,7 +88,8 @@ def change_name_all_files(files_path: [], old_sep=" ", new_sep="_"):
         print(f"Changed {count}")
 
 
-def clear_space(path: Path, old_sep=" ", new_sep="_", is_change_file=True, is_change_folder=False, is_recursive=False, debug=True):
+def clear_space(path: Path, old_sep=" ", new_sep="_", is_change_file=True, is_change_folder=False, is_recursive=False,
+                debug=True) -> None:
     """
     Principal function from this module
     :param path: Path folder or file
@@ -100,12 +102,15 @@ def clear_space(path: Path, old_sep=" ", new_sep="_", is_change_file=True, is_ch
     :return: None
     """
 
+    global DEBUG
     DEBUG = debug
     files, directories = (None, None)
     item = Path(os.path.abspath(path))
 
     if item.is_dir():
-        files, directories = read_files_from_folder(path=path, is_recursive=is_recursive)["all"]
+        files, directories = read_files_from_folder(path=item, is_recursive=is_recursive)["all"]
+        if DEBUG:
+            print(f"files: {len(files)}, Folders: {len(directories)}")
         if is_change_file:
             change_name_all_files(files, old_sep=old_sep, new_sep=new_sep)
         if is_change_folder:
@@ -118,14 +123,65 @@ def clear_space(path: Path, old_sep=" ", new_sep="_", is_change_file=True, is_ch
 
 def main():
     """
-    Just for the module
+    Just for test the module
     :return: None
     """
-    #path = Path("./assets")
+    # path = Path("./assets")
     # path = Path(f"./assets/folder uno{os.path.sep}main uno.py")
     path = Path(f"./")
-    clear_space(path, old_sep="-", new_sep="_", is_change_file=True, is_change_folder=False, is_recursive=False, debug=True)
+    clear_space(path, old_sep="-", new_sep="_", is_change_file=True, is_change_folder=False, is_recursive=False,
+                debug=True)
+
+
+### ------------------ cli --------------------------------
+
+example = """Examples to use:
+
+cspace "file name"
+cspacex -r ./ -> apply all files and search in folders
+scapcex ./ [default apply all files in this folder]
+cspacex -d -r ./ -> change all files and folders recursive
+cspacex -d -r --no-file ./ ->change just name folders recursive
+cspacex --no-file -d ./ -> change name just folders, no files
+ 
+cspacex "file-one" --old-sep - --new_sep * [gonna change all (-) for (_)]
+    result: file_one
+"""
+
+
+def cli():
+    try:
+        parser = argparse.ArgumentParser(description='Tool for change a symbol from name files or folders',
+                                         formatter_class=argparse.RawDescriptionHelpFormatter, epilog=example)
+
+        parser.add_argument("path", metavar="file or path", type=Path, help="File or path to change name")
+        parser.add_argument("--no-file", default=False, action="store_true", help="No include files")
+        parser.add_argument("-d", "--directory", default=False, action="store_true",
+                            help="Indicate if include directories " "change name")
+        parser.add_argument("-v", "--verbose", default=False, action="store_true", help="Show all logs")
+        parser.add_argument("-r", "--recursive", default=False, action="store_true",
+                            help="Search recursive inside folders")
+        parser.add_argument("--old-sep", type=str, default=" ", help="Old separator. Default space")
+        parser.add_argument("--new-sep", type=str, default="_", help="New separator. Default underscore")
+
+        parser.add_argument('--version', action='version', version='0.0.1')
+
+        args = parser.parse_args()
+        global verbose
+        verbose = args.verbose
+
+        # print(args)
+
+        clear_space(path=args.path, is_change_file=(not args.no_file), is_change_folder=args.directory,
+                    is_recursive=args.recursive,
+                    old_sep=args.old_sep, new_sep=args.new_sep, debug=args.verbose)
+        print("*Done*")
+
+    except Exception as e:
+        print("Something was wrong, if you want view the log, use `--verborse`")
+        if verbose:
+            print(e)
 
 
 if __name__ == "__main__":
-    main()
+    cli()

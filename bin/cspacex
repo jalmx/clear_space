@@ -1,18 +1,52 @@
 #!/usr/bin/env python3
+_C='all'
+_B=True
+_A=False
+import argparse,os
 from pathlib import Path
-import os
-DEBUG=True
-def read_files_from_folder(path,is_recursive=False):
-	'\n    This function read all files and folders\n    :param path: Path from folder to search\n    :param is_recursive: Going to search all files in from recursive\n    :return: a dict with 2 list with a files and folders\n    ';B=[];C=[]
-	for A in path.iterdir():
-		if A.is_file():B.append(A)
-		if A.is_dir():C.append(A)
-	if DEBUG:print(f'Folders: {len(C)} & Files: {len(B)} in "{path}"')
-	return{'files':B,'directories':C}
-def change_name(path,old_sep=' ',sep='_',is_change_name=True):
-	if not is_change_name:return
-	A=os.path.abspath(path);B=A.split(os.path.sep)[-1];D=B.strip().replace(old_sep,sep);C=A.replace(B,D);os.rename(A,C)
-	if DEBUG:print(A,C)
-def clear_space(path,is_change_file=True,is_change_folder=False):change_name(path)
-def main():A=Path(f"./assets/folder dos ");clear_space(A)
-if __name__=='__main__':main()
+DEBUG=_A
+def read_files_from_folder(path,is_recursive=_A):
+	'\n    This function read all files and folders\n    :param path: Path from folder to search\n    :param is_recursive: Going to search all files in from recursive\n    :return: a dict with 2 list with a files and folders\n    ';D=is_recursive;A=[];B=[]
+	for C in path.iterdir():
+		if C.is_file():A.append(C)
+		if C.is_dir():
+			B.append(C)
+			if D:
+				E,F=read_files_from_folder(C,D)[_C]
+				if len(E)>0:A.extend(E)
+				if len(F)>0:B.extend(F)
+	if DEBUG:print(f'Folders: {len(B)} & Files: {len(A)} in "{path}"')
+	return{'files':A,'directories':B,_C:[A,B]}
+def swap_list(items):A=items;return[A[B]for B in range(len(A)-1,-1,-1)]
+def change_name(path,old_sep=' ',new_sep='_'):
+	'\n    Change name from a file or folder\n    :param path: Path from file or folder\n    :param old_sep: old separator, default [one space]\n    :param new_sep: new separator, default (_)\n    :return: None\n    ';D=old_sep;A=os.path.abspath(path);B=A.split(os.path.sep)[-1]
+	if B.find(D)==-1:return _A
+	C='';E=B.strip().replace(D,new_sep)
+	if A.count(B)>1:F=A.split(os.path.sep)[0:-1];G=os.path.sep.join(F)+os.path.sep;C=f"{G}{E}"
+	else:C=A.replace(B,E)
+	os.rename(A,C)
+	if DEBUG:print(A,'-->',C)
+	return _B
+def change_name_all_files(files_path,old_sep=' ',new_sep='_'):
+	A=0
+	for B in files_path:
+		C=change_name(B,old_sep=old_sep,new_sep=new_sep)
+		if C:A+=1
+	if DEBUG:print(f"Changed {A}")
+def clear_space(path,old_sep=' ',new_sep='_',is_change_file=_B,is_change_folder=_A,is_recursive=_A,debug=_B):
+	'\n    Principal function from this module\n    :param path: Path folder or file\n    :param old_sep: Old separator\n    :param new_sep: New separator to change\n    :param is_change_file: if apply changes to file\n    :param is_change_folder: if apply change to folder\n    :param is_recursive: is going to search all files and folder inside another\n    :param debug: mode verbose\n    :return: None\n    ';B=new_sep;A=old_sep;global DEBUG;DEBUG=debug;C,D=None,None;E=Path(os.path.abspath(path))
+	if E.is_dir():
+		C,D=read_files_from_folder(path=E,is_recursive=is_recursive)[_C]
+		if DEBUG:print(f"files: {len(C)}, Folders: {len(D)}")
+		if is_change_file:change_name_all_files(C,old_sep=A,new_sep=B)
+		if is_change_folder:change_name_all_files(swap_list(D),old_sep=A,new_sep=B)
+	else:change_name(E,old_sep=A,new_sep=B)
+def main():'\n    Just for test the module\n    :return: None\n    ';A=Path(f"./");clear_space(A,old_sep='-',new_sep='_',is_change_file=_B,is_change_folder=_A,is_recursive=_A,debug=_B)
+example='Examples to use:\n\ncspace "file name"\ncspacex -r ./ -> apply all files and search in folders\nscapcex ./ [default apply all files in this folder]\ncspacex -d -r ./ -> change all files and folders recursive\ncspacex -d -r --no-file ./ ->change just name folders recursive\ncspacex --no-file -d ./ -> change name just folders, no files\n \ncspacex "file-one" --old-sep - --new_sep * [gonna change all (-) for (_)]\n    result: file_one\n'
+def cli():
+	C='store_true'
+	try:A=argparse.ArgumentParser(description='Tool for change a symbol from name files or folders',formatter_class=argparse.RawDescriptionHelpFormatter,epilog=example);A.add_argument('path',metavar='file or path',type=Path,help='File or path to change name');A.add_argument('--no-file',default=_A,action=C,help='No include files');A.add_argument('-d','--directory',default=_A,action=C,help='Indicate if include directories change name');A.add_argument('-v','--verbose',default=_A,action=C,help='Show all logs');A.add_argument('-r','--recursive',default=_A,action=C,help='Search recursive inside folders');A.add_argument('--old-sep',type=str,default=' ',help='Old separator. Default space');A.add_argument('--new-sep',type=str,default='_',help='New separator. Default underscore');A.add_argument('--version',action='version',version='0.0.1');B=A.parse_args();global verbose;verbose=B.verbose;clear_space(path=B.path,is_change_file=not B.no_file,is_change_folder=B.directory,is_recursive=B.recursive,old_sep=B.old_sep,new_sep=B.new_sep,debug=B.verbose);print('*Done*')
+	except Exception as D:
+		print('Something was wrong, if you want view the log, use `--verborse`')
+		if verbose:print(D)
+if __name__=='__main__':cli()
